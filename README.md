@@ -64,3 +64,7 @@ This automatically generates all optimal sequences
 One path picks T → leftover = 2 (allowed idle)
 
 One path picks P → leftover = 3 (allowed idle)
+
+regrads,
+S.Rahamathunissa
+Email:rahmathsulaiman45@gmail.com
