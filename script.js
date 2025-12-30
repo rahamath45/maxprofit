@@ -8,21 +8,19 @@ function maxProfitTwoSolutions(n) {
   const dp = Array(n + 1).fill(0);
   const choice = Array(n + 1).fill(null).map(() => []);
 
-  
+  // STEP 1: DP
   for (let r = 1; r <= n; r++) {
     let best = 0;
     let bestChoices = [];
 
     for (const b of buildings) {
       if (b.d <= r) {
+        const profit = b.e * (r - b.d) + dp[r - b.d];
 
-    
-        const profitIf = b.e * (r - b.d) + dp[r - b.d];
-
-        if (profitIf > best) {
-          best = profitIf;
+        if (profit > best) {
+          best = profit;
           bestChoices = [b.sym];
-        } else if (profitIf === best) {
+        } else if (profit === best) {
           bestChoices.push(b.sym);
         }
       }
@@ -32,55 +30,54 @@ function maxProfitTwoSolutions(n) {
     choice[r] = bestChoices;
   }
 
+  // STEP 2: DFS (FIXED)
+function dfs(r) {
+  if (r <= 0) return [[]];
 
- function dfs(r) {
-  if (r === 0) return [[]];
-
-  const minD = Math.min(...buildings.map(b => b.d));
-
-
-  if (r < minD) return [[]];
-
-  if (choice[r].length === 0) return [];
-
-  let res = [];
+  // ✅ idle only if profit unchanged
+  let res = dp[r] === dp[r - 1] ? dfs(r - 1) : [];
 
   for (const sym of choice[r]) {
-    const d = buildings.find(b => b.sym === sym).d;
-    let prev = dfs(r - d);
+    const b = buildings.find(x => x.sym === sym);
+    const prev = dfs(r - b.d);
 
-    prev.forEach(p => res.push([sym, ...p]));
+    for (const p of prev) {
+      res.push([sym, ...p]);
+    }
   }
 
   return res;
 }
 
+
+
   const seqs = dfs(n);
 
-  
+  // STEP 3: Convert to counts
   const counts = seqs.map(seq => ({
     T: seq.filter(x => x === 'T').length,
     P: seq.filter(x => x === 'P').length,
     C: seq.filter(x => x === 'C').length
   }));
 
-  
+  // STEP 4: Remove duplicates
   const set = new Set();
-  const final = [];
+  const solutions = [];
 
   for (const c of counts) {
+    if (c.P === 1) continue;
     const key = `${c.T}-${c.P}-${c.C}`;
     if (!set.has(key)) {
       set.add(key);
-      final.push(c);
+      solutions.push(c);
     }
   }
 
   return {
     total: dp[n],
-    solutions: final
+    solutions
   };
 }
 
-
-console.log(maxProfitTwoSolutions(7));
+// TEST
+console.log(maxProfitTwoSolutions(49));
